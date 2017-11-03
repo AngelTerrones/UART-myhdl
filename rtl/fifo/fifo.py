@@ -39,18 +39,13 @@ def FIFO(clk_i, rst_i, enqueue_i, dequeue_i, dat_i, dat_o, count_o, empty_o, ful
         _enqueue.next = not _full and enqueue_i   # ignore if full
         _dequeue.next = not _empty and dequeue_i  # ignore if empty
 
-    @hdl.always(clk_i.posedge)
+    @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def addr_ptr_proc():
-        if rst_i:
-            enqueue_ptr.next = 0
-            dequeue_ptr.next = 0
-            _count.next      = 0
-        else:
-            """ verilator lint_off WIDTH """
-            enqueue_ptr.next = enqueue_ptr + _enqueue
-            dequeue_ptr.next = dequeue_ptr + _dequeue
-            _count.next      = _count + _enqueue - _dequeue
-            """ verilator lint_on WIDTH """
+        """ verilator lint_off WIDTH """
+        enqueue_ptr.next = enqueue_ptr + _enqueue
+        dequeue_ptr.next = dequeue_ptr + _dequeue
+        _count.next      = _count + _enqueue - _dequeue
+        """ verilator lint_on WIDTH """
 
     return hdl.instances()
 
