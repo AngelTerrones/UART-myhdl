@@ -104,6 +104,8 @@ venv.bak/
 .mypy_cache/
 
 # HDL
+*.v
 *.vcd*
 out/
+build/
 # End of https://www.gitignore.io/api/python
