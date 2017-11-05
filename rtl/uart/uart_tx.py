@@ -17,12 +17,12 @@ def uart_tx(clk_i, rst_i, tx_tick_i, dat_i, start_i, ready_o, tx_o):
         if state == tx_state.IDLE:
             ready_o.next = True
             if start_i:
-                dat_r.next = dat_i
-                state.next = tx_state.START
+                dat_r.next   = dat_i
+                state.next   = tx_state.START
+                ready_o.next = False
             else:
                 tx_o.next = True
         elif state == tx_state.START:
-            ready_o.next = False
             if tx_tick_i:
                 tx_o.next  = False
                 state.next = tx_state.DATA
@@ -35,8 +35,9 @@ def uart_tx(clk_i, rst_i, tx_tick_i, dat_i, start_i, ready_o, tx_o):
                     state.next = tx_state.STOP
         elif state == tx_state.STOP:
             if tx_tick_i:
-                state.next = tx_state.IDLE
-                tx_o.next  = True
+                state.next   = tx_state.IDLE
+                tx_o.next    = True
+                ready_o.next = True
         else:
             state.next = tx_state.IDLE
 
