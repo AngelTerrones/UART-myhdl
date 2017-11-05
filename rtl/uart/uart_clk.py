@@ -8,20 +8,29 @@ from coregen.utils import log2up
 
 @hdl.block
 def clk_div(clk_i, rst_i, uart_tick, uart_tick_x16, CLK_BUS=50000000, BAUD_RATE=115200):
-    _divisor = CLK_BUS // BAUD_RATE
-    counter  = createSignal(0, log2up(_divisor))
+    _divisor   = CLK_BUS // BAUD_RATE
+    _divisor16 = CLK_BUS // (BAUD_RATE * 16)
+    counter    = createSignal(0, log2up(_divisor))
+    counter16  = createSignal(0, log2up(_divisor16))
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def counter_proc():
         if counter == _divisor - 1:
-            counter.next = 0
+            counter.next   = 0
         else:
-            counter.next = counter + 1
+            counter.next   = counter + 1
+
+    @hdl.always_seq(clk_i.posedge, reset=rst_i)
+    def counter16_proc():
+        if counter16 == _divisor16 - 1:
+            counter16.next = 0
+        else:
+            counter16.next = counter16 + 1
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def uart_tick_proc():
         uart_tick.next     = counter == 0
-        uart_tick_x16.next = counter[len(counter) - 4:0] == 0
+        uart_tick_x16.next = counter16 == 0
 
     return hdl.instances()
 
