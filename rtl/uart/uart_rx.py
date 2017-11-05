@@ -10,6 +10,7 @@ def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
     rx_sync     = createSignal(0b111, 3)
     rx_r        = createSignal(1, 1)
     bit_spacing = createSignal(0, 4)
+    bit_start   = createSignal(0, 3)
     nxt_bit     = createSignal(0, 1)
     bit_cnt     = createSignal(0, 3)
     dat_r       = createSignal(0, 8)
@@ -33,23 +34,31 @@ def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
             bit_spacing.next = bit_spacing + hdl.modbv(1)[4:]
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
-    def fsm_proc():
-        if state == rx_state.IDLE:
-            ready_o.next = False
-            if not rx_r:
-                state.next = rx_state.DATA
-        elif state == rx_state.DATA:
-            if nxt_bit:
-                dat_r.next   = hdl.concat(rx_r, dat_r[8:1])
-                bit_cnt.next = bit_cnt + 1
-                if bit_cnt == 7:
-                    state.next = rx_state.STOP
-        elif state == rx_state.STOP:
-            if nxt_bit:
-                state.next = rx_state.IDLE
-                ready_o.next = True
+    def start_bit_proc():
+        if state == rx_state.IDLE and not rx_r:
+            bit_start.next = bit_start + 1
         else:
-            state.next = rx_state.IDLE
+            bit_start.next = 0
+
+    @hdl.always_seq(clk_i.posedge, reset=rst_i)
+    def fsm_proc():
+        if rx_tick_i:
+            if state == rx_state.IDLE:
+                ready_o.next = False
+                if not rx_r and bit_start == 0b111:
+                    state.next = rx_state.DATA
+            elif state == rx_state.DATA:
+                if nxt_bit:
+                    dat_r.next   = hdl.concat(rx_r, dat_r[8:1])
+                    bit_cnt.next = bit_cnt + 1
+                    if bit_cnt == 7:
+                        state.next = rx_state.STOP
+            elif state == rx_state.STOP:
+                if nxt_bit:
+                    state.next = rx_state.IDLE
+                    ready_o.next = True
+            else:
+                state.next = rx_state.IDLE
 
     return hdl.instances()
 
