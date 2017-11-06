@@ -2,7 +2,7 @@
 # Copyright (c) 2017 Angel Terrones <aterrones@usb.ve>
 
 import myhdl as hdl
-from ram_dp import RAM_DP
+from rtl.fifo.ram_dp import RAM_DP
 from coregen.utils import createSignal
 
 
