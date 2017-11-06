@@ -42,9 +42,9 @@ def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def fsm_proc():
+        ready_o.next = False
         if rx_tick_i:
             if state == rx_state.IDLE:
-                ready_o.next = False
                 if not rx_r and bit_start == 0b111:
                     state.next = rx_state.DATA
             elif state == rx_state.DATA:
