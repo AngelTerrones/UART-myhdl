@@ -90,13 +90,13 @@ def uart_rx_testbench():
                     rx_data, rx_ready, rx,
                     CLK_BUS=CLK_XTAL, BAUD_RATE=BAUD)
 
-    def _tx_proc(data, rx):
-        rx.next = False
+    def _tx_proc(data, tx):
+        tx.next = False
         yield hdl.delay((CLK_XTAL // BAUD) * TICK_PERIOD)
         for i in range(8):
-            rx.next = (data >> i) & 0x01
+            tx.next = (data >> i) & 0x01
             yield hdl.delay((CLK_XTAL // BAUD) * TICK_PERIOD)
-        rx.next = True
+        tx.next = True
 
     @hdl.instance
     def uart_stimulus():
