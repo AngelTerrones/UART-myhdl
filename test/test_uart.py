@@ -54,6 +54,7 @@ def uart_tx_testbench():
         for _ in range(8):
             yield hdl.delay((CLK_XTAL // BAUD) * TICK_PERIOD)
             data.next = hdl.concat(tx, data[8:1])
+        yield tx.posedge
 
     @hdl.instance
     def uart_stimulus():
