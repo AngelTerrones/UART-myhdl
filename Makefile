@@ -19,7 +19,7 @@
 # S3 (Using SPARTAN-3)
 #-------------------------------------------------------------------------------
 .BRD=xula2
-.TOPE_V=banner
+.TOPE_V=Loopback
 
 ifeq ($(.BRD), xula2)
 	.FPGA=xc6slx25-2-ftg256  # SPARTAN-6
@@ -56,18 +56,19 @@ check-verilog: to-verilog
 # ********************************************************************
 # Test
 # ********************************************************************
-test-myhdl:
+run-tests:
 	@rm -f *.vcd*
-	@PYTHONPATH=$(PWD) $(.PYTEST) --tb=short -s test/
-
-test-cosim:
-	@mkdir -p $(.FOUT)
-	@PYTHONPATH=$(PWD) $(.PYTEST) --tb=short test/
+	$(.PYTEST) --tb=short -s test/
 
 # ********************************************************************
 # Implementation
 # ********************************************************************
+to-verilog: $(.PYTHON_FILES) $(.FOUT)/$(.TOPE_V).v
 
+# ---
+%.v: $(.PYTHON_FILES)
+	@mkdir -p $(.FOUT)
+	@PYTHONPATH=$(PWD) $(.PYTHON) $(.SCRIPT_FOLDER)/core_gen.py to_verilog --path $(.FOUT) --filename $(.TOPE_V) --clock $(.CLK) $(.RST_NEG)
 
 # ********************************************************************
 # Clean
