@@ -75,7 +75,7 @@ to-verilog: $(.PYTHON_FILES) $(.FOUT)/$(.TOPE_V).v
 # ********************************************************************
 clean:
 	@rm -rf $(.FOUT)/
-	@find . | grep -E "(\.vcd)" | xargs rm -rf
+	@find . | grep -E "(\.vcd|\.v)" | xargs rm -rf
 
 distclean: clean
-	@find . | grep -E "(__pycache__|\.pyc|\.pyo|\.vcd|\.cache)" | xargs rm -rf
+	@find . | grep -E "(__pycache__|\.pyc|\.pyo|\.cache)" | xargs rm -rf
