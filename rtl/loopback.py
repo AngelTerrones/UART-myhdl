@@ -29,7 +29,7 @@ def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, CLK_BUS=50_000_000
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def tx_fsm_proc():
         if state == lb_state.IDLE:
-            if rx_data == ord('\n'):
+            if rx_ready and rx_data == ord('\n'):
                 state.next = lb_state.SEND
         elif state == lb_state.SEND:
             if f_empty:
