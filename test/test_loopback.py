@@ -68,8 +68,16 @@ def loopback_testbench():
     def rx_proc():
         for _ in range(len(TXRX_DATA)):
             yield _rx_proc(rx_data)
-            if rx_data != '\n':
+            if rx_data != ord('\n'):
                 rx_buffer.append(int(rx_data))
+        # check for \n, if len(data) < FIFO size.
+        if len(TXRX_DATA) < 2**10:
+            yield _rx_proc(rx_data)
+            if rx_data != ord('\n'):
+                yield hdl.delay(5*(CLK_XTAL // BAUD) * TICK_PERIOD)
+                raise hdl.Error("Test failed: missing '\\n' from stream.")
+
+        yield hdl.delay(5*(CLK_XTAL // BAUD) * TICK_PERIOD)
         assert TXRX_DATA == rx_buffer, "[Loopback Error]: Send: {0}, Received: {1}".format(TXRX_DATA, rx_buffer)
 
         raise hdl.StopSimulation
