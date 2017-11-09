@@ -6,10 +6,10 @@ from coregen.utils import createSignal
 from rtl.loopback import Loopback
 
 # Constantes
-CLK_XTAL    = 5000
+CLK_XTAL    = 1000
 BAUD        = 10
 TXRX_DATA   = [ord(i) for i in "Hello world! :D"]
-TIMEOUT     = int(5*(12*len(TXRX_DATA)/BAUD)*CLK_XTAL)  # 12 symbols x char. Worst case: 5 times the message
+TIMEOUT     = int(3*(12*len(TXRX_DATA)/BAUD)*CLK_XTAL)  # 12 symbols x char. Worst case: 5 times the message
 TICK_PERIOD = 10
 RESET_TIME  = 5
 
@@ -26,7 +26,7 @@ def clk_n_timeout(clk, rst):
         yield hdl.delay(RESET_TIME * TICK_PERIOD)
         rst.next = False
         yield hdl.delay(TIMEOUT * TICK_PERIOD)
-        raise hdl.Error("Test failed: TIMEOUT")
+        raise hdl.Error("Test failed: TIMEOUT at {0}. Clock cycles: {1}".format(hdl.now(), hdl.now()//TICK_PERIOD))
 
     return hdl.instances()
 
