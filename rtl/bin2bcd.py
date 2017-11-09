@@ -6,20 +6,20 @@ from coregen.utils import createSignal
 
 
 @hdl.block
-def bin2bcd(clk_i, rst_i, binary, thousands, hundreds, tens, ones):
-    assert len(binary) <= 14, "[bin2bcd] Error: max length of 'binary' is 14. Wrong value: {1}".format(len(binary))
-    assert len(thousands) == 4, "[bin2bcd] Error: len(thousands) must be 4"
-    assert len(hundreds) == 4, "[bin2bcd] Error: len(hundreds) must be 4"
-    assert len(tens) == 4, "[bin2bcd] Error: len(tens) must be 4"
-    assert len(ones) == 4, "[bin2bcd] Error: len(ones) must be 4"
+def bin2bcd(clk_i, rst_i, binary_i, thousands_o, hundreds_o, tens_o, ones_o):
+    assert len(binary_i) <= 14, "[bin2bcd] Error: max length of 'binary_i' is 14. Wrong value: {1}".format(len(binary_i))
+    assert len(thousands_o) == 4, "[bin2bcd] Error: len(thousands_o) must be 4"
+    assert len(hundreds_o) == 4, "[bin2bcd] Error: len(hundreds_o) must be 4"
+    assert len(tens_o) == 4, "[bin2bcd] Error: len(tens_o) must be 4"
+    assert len(ones_o) == 4, "[bin2bcd] Error: len(ones_o) must be 4"
 
-    NBIT  = len(binary)
+    NBIT  = len(binary_i)
     shift = [createSignal(0, 4*4+NBIT) for _ in range(NBIT + 1)]
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def decomp_proc():
         """ verilator lint_off WIDTH """
-        shift[0].next  = binary
+        shift[0].next  = binary_i
         for i in range(NBIT):
             thousand = int(shift[i][NBIT + 16:NBIT + 12])
             hundred  = int(shift[i][NBIT + 12:NBIT + 8])
@@ -38,10 +38,10 @@ def bin2bcd(clk_i, rst_i, binary, thousands, hundreds, tens, ones):
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def assign_proc():
-        thousands.next = shift[NBIT][NBIT + 16:NBIT + 12]
-        hundreds.next  = shift[NBIT][NBIT + 12:NBIT + 8]
-        tens.next      = shift[NBIT][NBIT + 8:NBIT + 4]
-        ones.next      = shift[NBIT][NBIT + 4:NBIT]
+        thousands_o.next = shift[NBIT][NBIT + 16:NBIT + 12]
+        hundreds_o.next  = shift[NBIT][NBIT + 12:NBIT + 8]
+        tens_o.next      = shift[NBIT][NBIT + 8:NBIT + 4]
+        ones_o.next      = shift[NBIT][NBIT + 4:NBIT]
 
     return hdl.instances()
 

@@ -23,7 +23,7 @@ def driver7seg(clk_i, rst_i, value_i, anodos_o, segmentos_o, CLK_BUS=50_000_000)
     one         = createSignal(0, 4)
     segment_ROM = (0x03, 0x9f, 0x25, 0x0d, 0x99, 0x49, 0x41, 0x1f,
                    0x01, 0x09, 0x11, 0xc1, 0x63, 0x85, 0x61, 0x71)
-    b2b         = bin2bcd(clk_i=clk_i, rst_i=rst_i, binary=value_i, thousands=thousand, hundreds=hundred, tens=ten, ones=one)  # noqa
+    b2b         = bin2bcd(clk_i=clk_i, rst_i=rst_i, binary_i=value_i, thousands_o=thousand, hundreds_o=hundred, tens_o=ten, ones_o=one)  # noqa
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def cnt_anodos_proc():
