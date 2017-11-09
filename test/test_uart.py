@@ -9,9 +9,10 @@ from rtl.uart.uart import UART
 CLK_XTAL    = 1000
 BAUD        = 10
 TXRX_DATA   = [ord(i) for i in "Hello world! :D"]
-TIMEOUT     = int(5*(12*len(TXRX_DATA)/BAUD)*CLK_XTAL)  # 12 symbols x char. Worst case: 5 times the message
+TIMEOUT     = int(3 * (12 * len(TXRX_DATA) / BAUD) * CLK_XTAL)  # 12 symbols x char. Worst case: 5 times the message
 TICK_PERIOD = 10
 RESET_TIME  = 5
+TRACE       = False
 
 
 @hdl.block
@@ -26,7 +27,7 @@ def clk_n_timeout(clk, rst):
         yield hdl.delay(RESET_TIME * TICK_PERIOD)
         rst.next = False
         yield hdl.delay(TIMEOUT * TICK_PERIOD)
-        raise hdl.Error("Test failed: TIMEOUT at {0}. Clock cycles: {1}".format(hdl.now(), hdl.now()//TICK_PERIOD))
+        raise hdl.Error("Test failed: TIMEOUT at {0}. Clock cycles: {1}".format(hdl.now(), hdl.now() // TICK_PERIOD))
 
     return hdl.instances()
 
@@ -101,14 +102,14 @@ def uart_rx_testbench():
 
     @hdl.instance
     def uart_stimulus():
-        yield hdl.delay(2*(CLK_XTAL // BAUD) * TICK_PERIOD)
+        yield hdl.delay(2 * (CLK_XTAL // BAUD) * TICK_PERIOD)
         # test RX
         for data in TXRX_DATA:
             yield _tx_proc(data, rx)
             tx_check.next = rx_data
             yield hdl.delay(1)
             assert tx_check == data, "[RX error] Send: {0}. Received: {1}".format(hex(data), hex(tx_check))
-            yield hdl.delay(2*(CLK_XTAL // BAUD) * TICK_PERIOD)
+            yield hdl.delay(2 * (CLK_XTAL // BAUD) * TICK_PERIOD)
         yield hdl.delay((CLK_XTAL // (BAUD * 2)) * TICK_PERIOD)
 
         raise hdl.StopSimulation
@@ -133,7 +134,7 @@ def uart_loopback_testbench():
 
     @hdl.instance
     def uart_stimulus():
-        yield hdl.delay(2*(CLK_XTAL // BAUD) * TICK_PERIOD)
+        yield hdl.delay(2 * (CLK_XTAL // BAUD) * TICK_PERIOD)
         for data in TXRX_DATA:
             tx_data.next  = data
             tx_start.next = True
@@ -141,7 +142,7 @@ def uart_loopback_testbench():
             tx_start.next = False
             yield rx_ready.posedge
             assert rx_data == data, "[TXRX error] Send: {0}, Received: {1}".format(hex(data), hex(rx_data))
-            yield hdl.delay(2*(CLK_XTAL // BAUD) * TICK_PERIOD)
+            yield hdl.delay(2 * (CLK_XTAL // BAUD) * TICK_PERIOD)
 
         raise hdl.StopSimulation
 
@@ -150,19 +151,19 @@ def uart_loopback_testbench():
 
 def test_uart_tx():
     tb = uart_tx_testbench()
-    tb.config_sim(trace=True)
+    tb.config_sim(trace=TRACE)
     tb.run_sim()
 
 
 def test_uart_rx():
     tb = uart_rx_testbench()
-    tb.config_sim(trace=True)
+    tb.config_sim(trace=TRACE)
     tb.run_sim()
 
 
 def test_uart_loopback():
     tb = uart_loopback_testbench()
-    tb.config_sim(trace=True)
+    tb.config_sim(trace=TRACE)
     tb.run_sim()
 
 # Local Variables:
