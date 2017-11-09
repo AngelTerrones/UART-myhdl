@@ -31,12 +31,12 @@ def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
     def nxt_bit_proc():
         nxt_bit.next = bit_spacing == 0b1111
         if rx_tick_i and state != rx_state.IDLE:
-            bit_spacing.next = bit_spacing + hdl.modbv(1)[4:]
+            bit_spacing.next = bit_spacing + 1
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def start_bit_proc():
         if state == rx_state.IDLE and not rx_r:
-            bit_start.next = bit_start + 1
+            bit_start.next = bit_start + rx_tick_i
         else:
             bit_start.next = 0
 
