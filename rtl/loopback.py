@@ -6,11 +6,12 @@ from rtl.uart.uart import UART
 from rtl.fifo.fifo import FIFO
 from rtl.driver7seg import driver7seg
 from coregen.utils import createSignal
+from coregen.utils import log2up
 
 
 @hdl.block
-def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, CLK_BUS=50_000_000, BAUD_RATE=115200):
-    A_WIDTH  = 10
+def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, FIFO_DEPTH=1024, CLK_BUS=50_000_000, BAUD_RATE=115200):
+    A_WIDTH  = log2up(FIFO_DEPTH)
     tx_data  = createSignal(0, 8)
     tx_start = createSignal(0, 1)
     tx_ready = createSignal(0, 1)

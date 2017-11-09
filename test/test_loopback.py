@@ -8,8 +8,8 @@ from rtl.loopback import Loopback
 # Constantes
 CLK_XTAL    = 1000
 BAUD        = 10
-TXRX_DATA   = [ord(i) for i in "Hello world! :D"]
-TIMEOUT     = int(3 * (12 * len(TXRX_DATA) / BAUD) * CLK_XTAL)  # 12 symbols x char. Worst case: 5 times the message
+TXRX_DATA   = [ord(i) for i in "Hello world! :D\n"]
+TIMEOUT     = int(3 * (12 * len(TXRX_DATA) / BAUD) * CLK_XTAL)  # 12 symbols x char. Worst case: 3 times the message
 TICK_PERIOD = 10
 RESET_TIME  = 5
 TRACE       = False
@@ -33,17 +33,17 @@ def clk_n_timeout(clk, rst):
 
 
 @hdl.block
-def loopback_testbench():
+def loopback_testbench(fdepth):
+    assert fdepth >= len(TXRX_DATA), "Error: FIFO depth = {0}. Size of test data: {1}".format(fdepth, len(TXRX_DATA))
     clk       = createSignal(0, 1)
     rst       = hdl.ResetSignal(0, active=True, async=False)
-    clk_tout  = clk_n_timeout(clk, rst)  # noqa
     rx        = createSignal(1, 1)
     tx        = createSignal(0, 1)
     anodos    = createSignal(0, 4)
     segmentos = createSignal(0, 8)
     clk_tout  = clk_n_timeout(clk, rst)  # noqa
-    dut       = Loopback(clk_i=clk, rst_i=rst, rx_i=rx, tx_o=tx, anodos_o=anodos, segmentos_o=segmentos, CLK_BUS=CLK_XTAL, BAUD_RATE=BAUD)  # noqa
-
+    dut       = Loopback(clk_i=clk, rst_i=rst, rx_i=rx, tx_o=tx, anodos_o=anodos, segmentos_o=segmentos,  # noqa
+                         FIFO_DEPTH=fdepth, CLK_BUS=CLK_XTAL, BAUD_RATE=BAUD)
     rx_data   = createSignal(0, 8)
     rx_buffer = []
 
@@ -65,22 +65,14 @@ def loopback_testbench():
         tx.next = True
         yield hdl.delay((CLK_XTAL // BAUD) * TICK_PERIOD)
 
+    # --------------------------------------------------------------------------
     @hdl.instance
     def rx_proc():
         for _ in range(len(TXRX_DATA)):
             yield _rx_proc(rx_data)
-            if rx_data != ord('\n'):
-                rx_buffer.append(int(rx_data))
-        # check for \n, if len(data) < FIFO size.
-        if len(TXRX_DATA) < 2**10:
-            yield _rx_proc(rx_data)
-            if rx_data != ord('\n'):
-                yield hdl.delay(5 * (CLK_XTAL // BAUD) * TICK_PERIOD)
-                raise hdl.Error("Test failed: missing '\\n' from stream.")
-
+            rx_buffer.append(int(rx_data))
         yield hdl.delay(5 * (CLK_XTAL // BAUD) * TICK_PERIOD)
         assert TXRX_DATA == rx_buffer, "[Loopback Error]: Send: {0}, Received: {1}".format(TXRX_DATA, rx_buffer)
-
         raise hdl.StopSimulation
 
     @hdl.instance
@@ -88,13 +80,12 @@ def loopback_testbench():
         yield hdl.delay(2 * (CLK_XTAL // BAUD) * TICK_PERIOD)
         for data in TXRX_DATA:
             yield _tx_proc(data, rx)
-        yield _tx_proc(ord('\n'), rx)
 
     return hdl.instances()
 
 
 def test_loopback():
-    tb = loopback_testbench()
+    tb = loopback_testbench(len(TXRX_DATA))
     tb.config_sim(trace=TRACE)
     tb.run_sim()
 
