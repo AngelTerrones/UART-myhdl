@@ -10,7 +10,7 @@ from coregen.utils import log2up
 
 
 @hdl.block
-def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, FIFO_DEPTH=1024, CLK_BUS=50_000_000, BAUD_RATE=115200):
+def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, FIFO_DEPTH=1024, CLK_BUS=50_000_000, BAUD_RATE=9600):
     A_WIDTH  = log2up(FIFO_DEPTH)
     tx_data  = createSignal(0, 8)
     tx_start = createSignal(0, 1)
