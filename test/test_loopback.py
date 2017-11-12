@@ -10,7 +10,7 @@ CLK_XTAL    = 1000
 BAUD        = 10
 TXRX_DATA   = [ord(i) for i in "Hello world! :D\n"]
 TIMEOUT     = int(3 * (12 * len(TXRX_DATA) / BAUD) * CLK_XTAL)  # 12 symbols x char. Worst case: 3 times the message
-TICK_PERIOD = 10
+TICK_PERIOD = 2
 RESET_TIME  = 5
 TRACE       = False
 
