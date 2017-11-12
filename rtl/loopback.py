@@ -27,23 +27,22 @@ def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, FIFO_DEPTH=1024, C
     fifo     = FIFO(clk_i=clk_i, rst_i=rst_i, enqueue_i=rx_ready, dequeue_i=dequeue, dat_i=rx_data, dat_o=tx_data, count_o=f_count, empty_o=f_empty, full_o=f_full_o, A_WIDTH=A_WIDTH, D_WIDTH=8)  # noqa
     driver   = driver7seg(clk_i=clk_i, rst_i=rst_i, value_i=f_count, anodos_o=anodos_o, segmentos_o=segmentos_o, CLK_BUS=CLK_BUS)  # noqa
 
+    f_full_o._markRead()
+    stop_char = int(ord('\n'))
+
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def tx_fsm_proc():
         if state == lb_state.IDLE:
-            if rx_ready and rx_data == ord('\n'):
+            if rx_ready and (rx_data == stop_char):
                 state.next = lb_state.SEND
         elif state == lb_state.SEND:
+            dequeue.next  = False
+            tx_start.next = False
             if f_empty:
                 state.next    = lb_state.IDLE
-                dequeue.next  = False
-                tx_start.next = False
-            else:
-                if tx_ready and not dequeue:
-                    dequeue.next  = True
-                    tx_start.next = True
-                else:
-                    dequeue.next  = False
-                    tx_start.next = False
+            elif tx_ready and not dequeue:
+                dequeue.next  = True
+                tx_start.next = True
         else:
             state.next = lb_state.IDLE
 
