@@ -25,7 +25,11 @@ class Port(hdl.SignalType):
     def __init__(self, pins, iostandard=None):
         self.pins       = Pins(pins)
         self.iostandard = IOStandard(iostandard)
-        super().__init__(hdl.modbv(0)[len(self.pins):])
+        npins = len(self.pins)
+        if npins > 1:
+            super().__init__(hdl.modbv(0)[len(self.pins):])
+        else:
+            super().__init__(False)
 
 
 class ResetPort(hdl.ResetSignal):
