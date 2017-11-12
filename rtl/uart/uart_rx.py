@@ -49,7 +49,7 @@ def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
         ready_o.next = False
         if rx_tick_i:
             if state == rx_state.IDLE:
-                if not rx_r and bit_start == RXTICKX//2 - 1:
+                if not rx_r and bit_start == hdl.modbv(RXTICKX//2 - 1)[NBITSTART:]:
                     state.next = rx_state.DATA
             elif state == rx_state.DATA:
                 if nxt_bit:
