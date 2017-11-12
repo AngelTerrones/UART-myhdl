@@ -2,15 +2,19 @@
 # Copyright (c) 2017 Angel Terrones <aterrones@usb.ve>
 
 import myhdl as hdl
+from coregen.utils import log2up
 from coregen.utils import createSignal
 
 
 @hdl.block
 def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
+    RXTICKX     = 8
+    NBITSP      = log2up(RXTICKX)
+    NBITSTART   = NBITSP-1
     rx_sync     = createSignal(0b111, 3)
     rx_r        = createSignal(1, 1)
-    bit_spacing = createSignal(0, 4)
-    bit_start   = createSignal(0, 3)
+    bit_spacing = createSignal(0, NBITSP)
+    bit_start   = createSignal(0, NBITSTART)
     nxt_bit     = createSignal(0, 1)
     bit_cnt     = createSignal(0, 3)
     dat_r       = createSignal(0, 8)
@@ -29,7 +33,7 @@ def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def nxt_bit_proc():
-        nxt_bit.next = bit_spacing == 0b1111
+        nxt_bit.next = bit_spacing == RXTICKX - 1
         if rx_tick_i and state != rx_state.IDLE:
             bit_spacing.next = bit_spacing + 1
 
@@ -45,7 +49,7 @@ def uart_rx(clk_i, rst_i, rx_tick_i, rx_i, dat_o, ready_o):
         ready_o.next = False
         if rx_tick_i:
             if state == rx_state.IDLE:
-                if not rx_r and bit_start == 0b111:
+                if not rx_r and bit_start == RXTICKX//2 - 1:
                     state.next = rx_state.DATA
             elif state == rx_state.DATA:
                 if nxt_bit:
