@@ -15,7 +15,9 @@ def main():
               tx_o=Port('B1'),
               anodos_o=Port('F16 F15 J14 J16'),
               segmentos_o=Port('T7 R7 R15 R16 M15 M16 K15 K16'))
-    params = dict(FIFO_DEPTH=500, CLK_BUS=Xula2.Platform.default_clk_freq)
+    params = dict(BAUD_RATE=115200,
+                  FIFO_DEPTH=500,
+                  CLK_BUS=Xula2.Platform.default_clk_freq)
     board   = Xula2.Platform(module=Loopback, io=io, params=params)
     Coregen(board).run()
 
