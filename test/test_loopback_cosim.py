@@ -7,13 +7,13 @@ from coregen.utils import createSignal
 from rtl.loopback import Loopback
 
 # Constantes
-CLK_XTAL    = 1000
-BAUD        = 10
+CLK_XTAL    = 12_000_000
+BAUD        = 115200
 TXRX_DATA   = [ord(i) for i in "Hello world! :D\n"]
 TIMEOUT     = int(3 * (12 * len(TXRX_DATA) / BAUD) * CLK_XTAL)  # 12 symbols x char. Worst case: 3 times the message
 TICK_PERIOD = 2
 RESET_TIME  = 5
-TRACE       = False
+TRACE       = True
 
 
 @hdl.block
@@ -81,8 +81,11 @@ def loopback_testbench(fdepth):
         for _ in range(len(TXRX_DATA)):
             yield _rx_proc(rx_data)
             rx_buffer.append(int(rx_data))
+            print('Received: {}(0x{})'.format(chr(rx_data), rx_data))
         yield hdl.delay(5 * (CLK_XTAL // BAUD) * TICK_PERIOD)
+        print('Buffer: {}'.format(rx_buffer))
         assert TXRX_DATA == rx_buffer, "[Loopback Error]: Send: {0}, Received: {1}".format(TXRX_DATA, rx_buffer)
+        print('[Loopback-cosimulation] Test: OK')
         raise hdl.StopSimulation
 
     @hdl.instance
@@ -90,6 +93,7 @@ def loopback_testbench(fdepth):
         yield hdl.delay(2 * (CLK_XTAL // BAUD) * TICK_PERIOD)
         for data in TXRX_DATA:
             yield _tx_proc(data, rx)
+            print("Send: {}({})".format(chr(data), hex(data)))
 
     return hdl.instances(), compilation()
 
@@ -97,6 +101,10 @@ def loopback_testbench(fdepth):
 def test_loopback():
     tb = loopback_testbench(len(TXRX_DATA))
     tb.run_sim()
+
+
+if __name__ == '__main__':
+    test_loopback()
 
 # Local Variables:
 # flycheck-flake8-maximum-line-length: 200
