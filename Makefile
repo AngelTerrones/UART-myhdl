@@ -2,7 +2,6 @@
 # Makefile for EC1723-Lab 4.
 # Author: Angel Terrones <aterrones@usb.ve>
 #-------------------------------------------------------------------------------
-.FOUT=build
 .PYTHON=python3
 .PYTEST=pytest
 
@@ -16,23 +15,10 @@
 #-------------------------------------------------------------------------------
 # Boards:
 # Xula2 (using SPARTAN-6)
-# S3 (Using SPARTAN-3)
+# spartan3sb (Using SPARTAN-3)
 #-------------------------------------------------------------------------------
 .BRD=xula2
 .TOPE_V=Loopback
-
-ifeq ($(.BRD), xula2)
-	.FPGA=xc6slx25-2-ftg256  # SPARTAN-6
-	.CLK=12
-	.RST_NEG=--rst_neg
-	.CLK_SRC=Cclk  # Or JtagClk
-else ifeq ($(.BRD), s3)
-	.FPGA=xc3s200-ft256-4  # SPARTAN-3
-	.CLK=50
-	.CLK_SRC=JtagClk
-else
-$(error Invalid FPGA board)
-endif
 
 #-------------------------------------------------------------------------------
 # XILINX ISE
@@ -51,7 +37,7 @@ export PATH:=$(.ISE_BIN):$(PATH)
 # Syntax check
 # ********************************************************************
 check-verilog: to-verilog
-	@verilator --lint-only $(.FOUT)/$(.TOPE_V).v && echo "CHECK: OK"
+	@verilator --lint-only build/$(.TOPE_V).v && echo "CHECK: OK"
 
 # ********************************************************************
 # Test
@@ -63,18 +49,17 @@ run-tests:
 # ********************************************************************
 # Implementation
 # ********************************************************************
-to-verilog: $(.PYTHON_FILES) $(.FOUT)/$(.TOPE_V).v
+to-verilog: $(.PYTHON_FILES) build/$(.TOPE_V).v
 
 # ---
 %.v: $(.PYTHON_FILES)
-	@mkdir -p $(.FOUT)
-	@PYTHONPATH=$(PWD) $(.PYTHON) $(.SCRIPT_FOLDER)/core_gen.py to_verilog --path $(.FOUT) --filename $(.TOPE_V) --clock $(.CLK) $(.RST_NEG)
+	@PYTHONPATH=$(PWD) $(.PYTHON) $(.SCRIPT_FOLDER)/build_$(.BRD).py toverilog
 
 # ********************************************************************
 # Clean
 # ********************************************************************
 clean:
-	@rm -rf $(.FOUT)/
+	@rm -rf build/
 	@find . | grep -E "(\.vcd|\.v)" | xargs rm -rf
 
 distclean: clean
