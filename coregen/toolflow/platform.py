@@ -20,9 +20,12 @@ class IOStandard:
     def __init__(self, name):
         self.name = name
 
+    def __repr__(self):
+        return "{}('{}')".format(self.__class__.__name__, self.name)
+
 
 class Port(hdl.SignalType):
-    def __init__(self, pins, iostandard=None):
+    def __init__(self, pins, iostandard):
         self.pins       = Pins(pins)
         self.iostandard = IOStandard(iostandard)
         npins = len(self.pins)
@@ -34,7 +37,7 @@ class Port(hdl.SignalType):
 
 class ResetPort(hdl.ResetSignal):
     def __init__(self, pins, iostandard=None, **kwargs):
-        self.pins = Pins(pins)
+        self.pins       = Pins(pins)
         self.iostandard = IOStandard(iostandard)
         super().__init__(**kwargs)
 
@@ -56,13 +59,14 @@ class Platform:
             io = self.io
         if name is None:
             name = self.name
+        print('Generate verilog: {}.v'.format(name))
         top = self.module(**io)
         top.convert(name=name, **kwargs)
 
     def build(self):
         raise NotImplementedError
 
-    def program(self):
+    def get_programmer(self):
         raise NotImplementedError
 
 # Local Variables:

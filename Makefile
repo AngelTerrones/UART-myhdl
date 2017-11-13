@@ -51,9 +51,20 @@ run-tests:
 # ********************************************************************
 to-verilog: $(.PYTHON_FILES) build/$(.TOPE_V).v
 
+build-platform: build/$(.TOPE_V).bit
+
+load-bitstream: build/$(.TOPE_V).bit
+	@PYTHONPATH=$(PWD) $(.PYTHON) $(.SCRIPT_FOLDER)/build_$(.BRD).py program
+
+flash: build/$(.TOPE_V).bit
+	@PYTHONPATH=$(PWD) $(.PYTHON) $(.SCRIPT_FOLDER)/build_$(.BRD).py program --flash
+
 # ---
 %.v: $(.PYTHON_FILES)
 	@PYTHONPATH=$(PWD) $(.PYTHON) $(.SCRIPT_FOLDER)/build_$(.BRD).py toverilog
+
+%.bit: $(.PYTHON_FILES)
+	@PYTHONPATH=$(PWD) $(.PYTHON) $(.SCRIPT_FOLDER)/build_$(.BRD).py build
 
 # ********************************************************************
 # Clean

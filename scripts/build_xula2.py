@@ -9,12 +9,12 @@ from coregen.toolflow.platform import ResetPort
 
 
 def main():
-    io = dict(clk_i=Port('T9'),
-              rst_i=ResetPort('T2', val=0, active=False, async=False),
-              rx_i=Port('B2'),
-              tx_o=Port('B1'),
-              anodos_o=Port('F16 F15 J14 J16'),
-              segmentos_o=Port('T7 R7 R15 R16 M15 M16 K15 K16'))
+    io = dict(clk_i=Port('A9', 'LVTTL'),
+              rst_i=ResetPort('A2', 'LVTTL', val=0, active=False, async=False),
+              rx_i=Port('B2', 'LVTTL'),
+              tx_o=Port('B1', 'LVTTL'),
+              anodos_o=Port('F16 F15 J14 J16', 'LVTTL'),
+              segmentos_o=Port('K16, K15, M16, M15, R16, R15, R7, T7', 'LVTTL'))
     params = dict(BAUD_RATE=115200,
                   FIFO_DEPTH=500,
                   CLK_BUS=Xula2.Platform.default_clk_freq)

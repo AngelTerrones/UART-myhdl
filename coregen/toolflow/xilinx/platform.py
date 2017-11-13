@@ -1,26 +1,22 @@
 #!/usr/bin/env python3
 # Copyright (c) 2017 Angel Terrones <aterrones@usb.ve>
 
-from coregen.toolflow.tools import write2file
+from coregen.toolflow.xilinx import ise
 from coregen.toolflow.platform import Platform
 
 
-def _format_ucf(signame, pin):
-    pass
-
-
-def _build_ucf():
-    pass
-
-
 class XilinxPlatform(Platform):
-    bitfile_ext = '.bit'
-
     def __init__(self, toolchain='ise', *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if toolchain == 'ise':
+            self.toolchain = ise.XilinxISE()
+        elif toolchain == 'vivado':
+            raise NotImplementedError('Vivado toolchain is not implemented (yet)')
+        else:
+            raise ValueError('Unknown toolchain')
 
     def build(self, **kwargs):
-        print("Xilinx Build")
+        self.toolchain.build(platform=self, build_name=self.name, **kwargs)
 
 # Local Variables:
 # flycheck-flake8-maximum-line-length: 200
