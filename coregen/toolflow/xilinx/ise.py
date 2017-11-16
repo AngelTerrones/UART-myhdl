@@ -11,7 +11,7 @@ def _format_constraint(c):
     if isinstance(c, Pins):
         return 'LOC=' + c.identifiers[0]
     elif isinstance(c, IOStandard):
-        return ('IOSTANDARD=' + c.name) if c.name is not None else ''
+        return 'IOSTANDARD=' + c.name
     else:
         return ValueError('Invalid type: {}'.format(type(c)))
 
