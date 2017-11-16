@@ -44,7 +44,7 @@ check-verilog: to-verilog
 # ********************************************************************
 run-tests:
 	@rm -f *.vcd*
-	$(.PYTEST) --tb=short -s test/
+	@$(.PYTEST) --tb=short -s test/
 
 # ********************************************************************
 # Implementation

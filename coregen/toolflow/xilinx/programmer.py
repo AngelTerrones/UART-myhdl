@@ -6,7 +6,6 @@ from coregen.toolflow.programmer import Programmer
 
 
 def _run_impact(cmd):
-    print("iMPACT cmd: ", cmd)
     with subprocess.Popen('impact -batch', stdin=subprocess.PIPE, shell=True) as process:
         process.stdin.write(cmd.encode('ASCII'))
         process.communicate()
