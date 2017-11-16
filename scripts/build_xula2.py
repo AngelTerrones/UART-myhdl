@@ -14,7 +14,7 @@ def main():
               rx_i=Port('B2', 'LVTTL'),
               tx_o=Port('B1', 'LVTTL'),
               anodos_o=Port('F16 F15 J14 J16', 'LVTTL'),
-              segmentos_o=Port('K16, K15, M16, M15, R16, R15, R7, T7', 'LVTTL'))
+              segmentos_o=Port('K16 K15 M16 M15 R16 R15 R7 T7', 'LVTTL'))
     params = dict(BAUD_RATE=115200,
                   FIFO_DEPTH=500,
                   CLK_BUS=Xula2.Platform.default_clk_freq)
