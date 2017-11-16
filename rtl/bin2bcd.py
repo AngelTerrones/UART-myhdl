@@ -14,7 +14,7 @@ def bin2bcd(clk_i, rst_i, binary_i, thousands_o, hundreds_o, tens_o, ones_o):
     assert len(ones_o) == 4, "[bin2bcd] Error: len(ones_o) must be 4"
 
     NBIT  = len(binary_i)
-    shift = [createSignal(0, 4*4+NBIT) for _ in range(NBIT + 1)]
+    shift = [createSignal(0, 16 + NBIT) for _ in range(NBIT + 1)]
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
     def decomp_proc():
