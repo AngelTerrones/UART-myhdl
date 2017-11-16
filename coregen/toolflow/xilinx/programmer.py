@@ -7,11 +7,21 @@ from coregen.toolflow.programmer import Programmer
 
 def _run_impact(cmd):
     print("iMPACT cmd: ", cmd)
+    with subprocess.Popen('impact -batch', stdin=subprocess.PIPE, shell=True) as process:
+        process.stdin.write(cmd.encode('ASCII'))
+        process.communicate()
+        return process.returncode
 
 
 class iMPACT(Programmer):
     def load_bitstream(self, bitfile):
-        cmd = "setMode -bs"
+        cmd = """setMode -bs
+setCable -p auto
+Identify
+identifyMPM
+assignFile -p 1 -file {0}
+program -p 1
+quit""".format(bitfile)
         _run_impact(cmd)
 
     def flash(self, bitfile):
