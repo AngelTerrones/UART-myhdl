@@ -9,7 +9,7 @@ class Platform(XilinxPlatform):
     default_clk_freq = 12_000_000
 
     def __init__(self, toolchain='ise', programmer='xstools', *args, **kwargs):
-        super().__init__(device='xc6slx25-2ftg256', *args, **kwargs)
+        super().__init__(device='xc6slx25-2-ftg256', *args, **kwargs)
         self.toolchain.add_bitgen_options("-g ConfigRate:10 -g DonePin:PullUp -g TckPin:PullNone -g UnusedPin:PullNone -g StartUpClk:CClk")
         self.programmer = programmer
 
