@@ -15,8 +15,8 @@ def main():
               tx_o=Port('R13', 'LVTTL'),
               anodos_o=Port('D14 G14 F14 E13', 'LVTTL'),
               segmentos_o=Port('P16 N16 F13 R16 P15 N15 G13 E14', 'LVTTL'))
-    params = dict(BAUD_RATE=9600,
-                  FIFO_DEPTH=100,
+    params = dict(BAUD_RATE=115200,
+                  FIFO_DEPTH=500,
                   CLK_BUS=Spartan3sb.Platform.default_clk_freq)
     board   = Spartan3sb.Platform(module=Loopback, io=io, params=params)
     Coregen(board).run()
