@@ -21,19 +21,15 @@ def bin2bcd(clk_i, rst_i, binary_i, thousands_o, hundreds_o, tens_o, ones_o):
         """ verilator lint_off WIDTH """
         shift[0].next  = binary_i
         for i in range(NBIT):
-            thousand = int(shift[i][NBIT + 16:NBIT + 12])
-            hundred  = int(shift[i][NBIT + 12:NBIT + 8])
-            ten      = int(shift[i][NBIT + 8:NBIT + 4])
-            one      = int(shift[i][NBIT + 4:NBIT])
-            if thousand >= 5:
-                thousand = thousand + 3
-            if hundred >= 5:
-                hundred = hundred + 3
-            if ten >= 5:
-                ten = ten + 3
-            if one >= 5:
-                one = one + 3
-            shift[i + 1].next = hdl.concat(hdl.modbv(thousand)[4:], hdl.modbv(hundred)[4:], hdl.modbv(ten)[4:], hdl.modbv(one)[4:], shift[i][NBIT:]) << 1
+            thousand = shift[i][NBIT + 16:NBIT + 12] + 3
+            hundred  = shift[i][NBIT + 12:NBIT + 8] + 3
+            ten      = shift[i][NBIT + 8:NBIT + 4] + 3
+            one      = shift[i][NBIT + 4:NBIT] + 3
+            shift[i + 1].next = hdl.concat(shift[i][NBIT + 16:NBIT + 12] if shift[i][NBIT + 16:NBIT + 12] < 5 else hdl.modbv(thousand)[4:], 
+                                           shift[i][NBIT + 12:NBIT + 8] if shift[i][NBIT + 12:NBIT + 8] < 5 else hdl.modbv(hundred)[4:], 
+                                           shift[i][NBIT + 8:NBIT + 4] if shift[i][NBIT + 8:NBIT + 4] < 5 else hdl.modbv(ten)[4:], 
+                                           shift[i][NBIT + 4:NBIT] if shift[i][NBIT + 4:NBIT] < 5 else hdl.modbv(one)[4:], 
+                                           shift[i][NBIT:]) << 1
         """ verilator lint_on WIDTH """
 
     @hdl.always_seq(clk_i.posedge, reset=rst_i)
